@@ -90,6 +90,15 @@ body {
   padding: 18px;
 }
 .painel img { display: block; width: 100%; height: auto; }
+.nuvem3d { padding: 0; overflow: hidden; }
+.palco { width: 100%; aspect-ratio: 16 / 9; cursor: grab; touch-action: pan-y; }
+.palco:active { cursor: grabbing; }
+.palco canvas { display: block; width: 100% !important; height: 100% !important; }
+.nuvem3d .reserva { display: none; padding: 18px; }
+.nuvem3d.sem-3d .palco, .nuvem3d.sem-3d .info { display: none; }
+.nuvem3d.sem-3d .reserva { display: block; }
+.info { margin: 0; padding: 10px 16px; border-top: 4px solid var(--navy); background: var(--navy); color: var(--cream); font-weight: 700; font-size: .95rem; text-align: center; min-height: 2.9em; }
+.info b { color: var(--sun); font-family: var(--font-title); font-weight: 400; font-size: 1.25rem; letter-spacing: .03em; }
 
 .temas {
   display: grid;
@@ -128,6 +137,8 @@ body {
   .titulo { -webkit-text-stroke-width: 5px; text-shadow: 3px 3px 0 var(--navy); }
   .painel { padding: 10px; box-shadow: 6px 6px 0 var(--navy); border-width: 4px; }
   .abertura { min-height: 320px; }
+  .palco { aspect-ratio: 1 / 1; }
+  .nuvem3d .reserva { padding: 10px; }
 }
 </style>
 </head>
@@ -169,8 +180,10 @@ body {
 
   <section aria-labelledby="t-nuvem">
     <h2 id="t-nuvem" class="titulo medio">Todos os textos juntos</h2>
-    <div class="painel">
-      <img src="nuvem_palavras.png" alt="Nuvem de palavras com os termos mais frequentes dos seis textos. Em maior destaque: care, social, work, amor, llms, human, workers, domestic, violência e política.">
+    <div class="painel nuvem3d sem-3d" id="nuvem3d">
+      <div class="palco" role="img" aria-label="Nuvem de palavras em 3D. Arraste para girar."></div>
+      <img class="reserva" src="nuvem_palavras.png" alt="Nuvem de palavras com os termos mais frequentes dos seis textos. Em maior destaque: care, social, work, amor, llms, human, workers, domestic, violência e política.">
+      <p class="info" id="info" aria-live="polite">Arraste para girar. Passe o mouse ou toque numa palavra para ver o peso.</p>
     </div>
   </section>
 
@@ -215,5 +228,166 @@ body {
   <p class="nota">Como foi feita: palavras comuns em português e inglês, seções de referências e texto de interface das páginas da Folha foram removidos. Cada texto tem o mesmo peso (frequência relativa), para que os artigos longos não dominem. Sobrenomes dos autores dos artigos sobre LLMs foram ignorados. Formas diferentes da mesma palavra, como "cuidado" e "cuidados", contam separadamente, e os textos em português e inglês aparecem juntos.</p>
 
 </main>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const PALAVRAS = [{"t": "care", "p": 9.47}, {"t": "llms", "p": 5.33}, {"t": "social", "p": 5.16}, {"t": "amor", "p": 5.07}, {"t": "work", "p": 4.13}, {"t": "human", "p": 3.89}, {"t": "violência", "p": 3.77}, {"t": "workers", "p": 3.72}, {"t": "domestic", "p": 3.51}, {"t": "política", "p": 2.99}, {"t": "labor", "p": 2.7}, {"t": "identity", "p": 2.69}, {"t": "models", "p": 2.64}, {"t": "gênero", "p": 2.61}, {"t": "responses", "p": 2.59}, {"t": "história", "p": 2.43}, {"t": "tasks", "p": 2.38}, {"t": "literatura", "p": 2.34}, {"t": "mulheres", "p": 2.32}, {"t": "demographic", "p": 2.2}, {"t": "anos", "p": 2.16}, {"t": "político", "p": 2.16}, {"t": "eleição", "p": 2.11}, {"t": "lula", "p": 2.11}, {"t": "autor", "p": 2.08}, {"t": "analysis", "p": 1.87}, {"t": "ocidental", "p": 1.83}, {"t": "negra", "p": 1.83}, {"t": "mercado", "p": 1.83}, {"t": "sociais", "p": 1.82}, {"t": "duas", "p": 1.8}, {"t": "brasil", "p": 1.73}, {"t": "political", "p": 1.67}, {"t": "inequalities", "p": 1.65}, {"t": "economy", "p": 1.65}, {"t": "research", "p": 1.65}, {"t": "model", "p": 1.65}, {"t": "participants", "p": 1.55}, {"t": "text", "p": 1.55}, {"t": "sociedades", "p": 1.54}, {"t": "casamento", "p": 1.54}, {"t": "out-group", "p": 1.51}, {"t": "in-group", "p": 1.51}, {"t": "coverage", "p": 1.48}, {"t": "negros", "p": 1.47}, {"t": "qualquer", "p": 1.43}, {"t": "autores", "p": 1.42}, {"t": "matriz", "p": 1.4}, {"t": "pessoa", "p": 1.38}, {"t": "maior", "p": 1.38}, {"t": "principais", "p": 1.38}, {"t": "fala", "p": 1.37}, {"t": "pesquisador", "p": 1.37}, {"t": "brasileiro", "p": 1.37}, {"t": "romântico", "p": 1.35}, {"t": "time", "p": 1.34}, {"t": "questions", "p": 1.34}, {"t": "resistance", "p": 1.34}, {"t": "políticas", "p": 1.33}, {"t": "task", "p": 1.33}, {"t": "save", "p": 1.33}, {"t": "representando", "p": 1.33}, {"t": "novo", "p": 1.33}, {"t": "simbólica", "p": 1.3}, {"t": "people", "p": 1.29}, {"t": "data", "p": 1.29}, {"t": "políticos", "p": 1.29}, {"t": "intolerância", "p": 1.29}, {"t": "opinião", "p": 1.29}, {"t": "language", "p": 1.27}, {"t": "lado", "p": 1.26}, {"t": "relevant", "p": 1.26}, {"t": "princípio", "p": 1.24}, {"t": "democracia", "p": 1.24}, {"t": "eleições", "p": 1.24}, {"t": "adversário", "p": 1.24}, {"t": "casos", "p": 1.24}, {"t": "employment", "p": 1.24}, {"t": "response", "p": 1.21}, {"t": "branquitude", "p": 1.21}];
+const CORES = ["#101a3c", "#f15a22", "#d9480f", "#101a3c", "#e8590c"];
+const caixa = document.getElementById("nuvem3d");
+const palco = caixa.querySelector(".palco");
+const info = document.getElementById("info");
+const TEXTO_INFO = info.textContent;
+
+function temWebGL() {
+  try {
+    const c = document.createElement("canvas");
+    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch (e) { return false; }
+}
+
+// Desenha a palavra num canvas, no estilo dos títulos (contorno branco)
+function textura(texto, cor) {
+  const fonte = "96px Bangers, Impact, sans-serif";
+  const c = document.createElement("canvas");
+  const ctx = c.getContext("2d");
+  ctx.font = fonte;
+  const larg = Math.ceil(ctx.measureText(texto).width) + 36;
+  c.width = larg; c.height = 128;
+  ctx.font = fonte;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.lineJoin = "round";
+  ctx.lineWidth = 12;
+  ctx.strokeStyle = "#ffffff";
+  ctx.strokeText(texto, larg / 2, 68);
+  ctx.fillStyle = cor;
+  ctx.fillText(texto, larg / 2, 68);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+
+async function iniciar() {
+  try { await document.fonts.load("96px Bangers"); } catch (e) {}
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  palco.appendChild(renderer.domElement);
+  caixa.classList.remove("sem-3d");
+
+  const cena = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 16 / 9, 0.1, 200);
+  camera.position.set(0, 0, 27);
+
+  const controles = new OrbitControls(camera, renderer.domElement);
+  controles.enableZoom = false;
+  controles.enablePan = false;
+  controles.enableDamping = true;
+  controles.dampingFactor = 0.08;
+  const calmo = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  controles.autoRotate = !calmo;
+  controles.autoRotateSpeed = 0.9;
+
+  // Distribuição em esfera (espiral de Fibonacci), com as palavras grandes espalhadas
+  const N = PALAVRAS.length;
+  const maxP = PALAVRAS[0].p;
+  const minP = PALAVRAS[N - 1].p;
+  let passo = 37;
+  const mdc = (a, b) => (b ? mdc(b, a % b) : a);
+  while (mdc(passo, N) !== 1) passo++;
+  const R = 11.5;
+  const sprites = [];
+  const grupo = new THREE.Group();
+  cena.add(grupo);
+  PALAVRAS.forEach((w, i) => {
+    const rel = maxP > minP ? (w.p - minP) / (maxP - minP) : 1;
+    const alt = 0.5 + 2.3 * Math.sqrt(rel);
+    const tex = textura(w.t.toUpperCase(), CORES[i % CORES.length]);
+    const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false });
+    const s = new THREE.Sprite(mat);
+    const asp = tex.image.width / tex.image.height;
+    s.scale.set(alt * asp, alt, 1);
+    const k = (i * passo) % N;
+    const y = 1 - ((k + 0.5) / N) * 2;
+    const r = Math.sqrt(1 - y * y);
+    const th = k * 2.399963;
+    s.position.set(Math.cos(th) * r * R * 1.3, y * R * 0.82, Math.sin(th) * r * R);
+    s.userData = { w, base: s.scale.clone() };
+    grupo.add(s);
+    sprites.push(s);
+  });
+
+  // Tamanho do palco
+  function ajustar() {
+    const w = palco.clientWidth, h = palco.clientHeight;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    const estreito = camera.aspect < 1.2;
+    grupo.scale.set(estreito ? 0.8 : 1, estreito ? 1.38 : 1, estreito ? 0.8 : 1);
+    camera.position.setLength(estreito ? 36 : 31);
+    camera.updateProjectionMatrix();
+  }
+  new ResizeObserver(ajustar).observe(palco);
+  ajustar();
+
+  // Destaque ao passar o mouse ou tocar
+  const raio = new THREE.Raycaster();
+  const ponteiro = new THREE.Vector2();
+  let ativo = null;
+  function marcar(s) {
+    if (ativo === s) return;
+    if (ativo) ativo.scale.copy(ativo.userData.base);
+    ativo = s;
+    if (s) {
+      s.scale.copy(s.userData.base).multiplyScalar(1.3);
+      const w = s.userData.w;
+      info.innerHTML = "<b>" + w.t + "</b> · " + w.p.toLocaleString("pt-BR") +
+        " ocorrências por mil palavras (média dos 6 textos)";
+    } else {
+      info.textContent = TEXTO_INFO;
+    }
+  }
+  function apontar(ev) {
+    const r = renderer.domElement.getBoundingClientRect();
+    ponteiro.x = ((ev.clientX - r.left) / r.width) * 2 - 1;
+    ponteiro.y = -((ev.clientY - r.top) / r.height) * 2 + 1;
+    raio.setFromCamera(ponteiro, camera);
+    const achados = raio.intersectObjects(sprites, false)
+      .filter((a) => a.object.material.opacity > 0.5);
+    marcar(achados.length ? achados[0].object : null);
+  }
+  renderer.domElement.addEventListener("pointermove", apontar);
+  renderer.domElement.addEventListener("pointerdown", apontar);
+  renderer.domElement.addEventListener("pointerleave", () => marcar(null));
+
+  // Palavras do lado de trás ficam mais apagadas
+  const dir = new THREE.Vector3();
+  function quadro() {
+    controles.update();
+    dir.copy(camera.position).normalize();
+    for (const s of sprites) {
+      const d = s.position.dot(dir) / R; // -1 (atrás) a 1 (frente)
+      s.material.opacity = 0.18 + 0.82 * Math.min(1, Math.max(0, (d + 1) / 2));
+    }
+    renderer.render(cena, camera);
+  }
+  renderer.setAnimationLoop(quadro);
+}
+
+if (temWebGL()) {
+  iniciar().catch(() => caixa.classList.add("sem-3d"));
+}
+</script>
+
 </body>
 </html>
