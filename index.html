@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nuvem de Palavras</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600&display=swap">
+<style>
+/* Layout: coluna única estreita, imagem em moldura clara no topo, fontes em lista abaixo */
+:root {
+  --bg: #f6f7f9;
+  --fg: #1b2330;
+  --muted: #5a6577;
+  --line: #d9dee6;
+  --accent: #2a7a8c;
+  --frame: #ffffff;
+  --font-head: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171f; --fg: #e6eaf0; --muted: #9aa5b6; --line: #2a3340; --accent: #62b5c6; --frame: #ffffff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171f; --fg: #e6eaf0; --muted: #9aa5b6; --line: #2a3340; --accent: #62b5c6; --frame: #ffffff;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body);
+  font-size: 16px; line-height: 1.55;
+  padding-block: 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+h1 { font-family: var(--font-head); font-size: clamp(1.7rem, 4vw, 2.3rem); margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-head); font-size: 1.15rem; margin: 0 0 10px; }
+.lead { color: var(--muted); margin: 6px 0 0; max-width: 65ch; }
+figure { margin: 0; background: var(--frame); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+figure img { display: block; width: 100%; height: auto; border-radius: 4px; }
+ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; }
+li span { color: var(--muted); }
+.note { color: var(--muted); font-size: 0.92rem; max-width: 65ch; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Nuvem de Palavras</h1>
+    <p class="lead">Termos mais frequentes em seis textos: quatro artigos acadêmicos e duas matérias da Folha de S.Paulo.</p>
+  </header>
+  <figure>
+    <img src="nuvem_palavras.png" alt="Nuvem de palavras com os termos mais frequentes dos seis textos. Em maior destaque: care, llms, social, human, amor, work, workers, domestic, violência e política.">
+  </figure>
+  <section>
+    <h2>Textos analisados</h2>
+    <ul>
+      <li>Gottfried (2025). Conceptualizing care inequalities and modalities of resistance. <span>Tempo Social, v. 37, n. 3.</span></li>
+      <li>Fernandes e Moschkovich (2025). Amor, gênero, branquitude e poder nas sociedades de matriz simbólica ocidental. <span>Tempo Social, v. 37, n. 2.</span></li>
+      <li>Ziems et al. (2024). Can Large Language Models Transform Computational Social Science? <span>Computational Linguistics (versão do arXiv).</span></li>
+      <li>Wang, Morgenstern e Dickerson (2025). Large language models that replace human participants can harmfully misportray and flatten identity groups. <span>Nature Machine Intelligence (versão do arXiv).</span></li>
+      <li>Angela Alonso. Violência política muda de forma nas últimas eleições presidenciais. <span>Folha de S.Paulo, novembro de 2026.</span></li>
+      <li>Mário Medeiros. Valorização da diversidade no mercado editorial pode ser efêmera. <span>Folha de S.Paulo (Ilustríssima), novembro de 2026.</span></li>
+    </ul>
+  </section>
+  <p class="note">Como foi feita: palavras comuns em português e inglês, seções de referências e texto de interface das páginas da Folha foram removidos. Cada texto tem o mesmo peso (frequência relativa), para que os artigos longos não dominem. Sobrenomes dos autores dos artigos sobre LLMs foram ignorados. Formas diferentes da mesma palavra, como "cuidado" e "cuidados", contam separadamente. Os textos estão em português e inglês, então os dois idiomas aparecem juntos.</p>
+</main>
+</body>
+</html>
