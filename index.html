@@ -4,68 +4,216 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nuvem de Palavras</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@600&display=swap">
+<meta name="description" content="Termos mais frequentes em quatro artigos acadêmicos e duas matérias da Folha de S.Paulo.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 <style>
-/* Layout: coluna única estreita, imagem em moldura clara no topo, fontes em lista abaixo */
+/* Estilo quadrinhos: degradê amarelo-laranja, azul-marinho, explosão central, painéis com contorno grosso */
+@font-face {
+  font-family: "Bangers";
+  src: url("fonts/Bangers-Regular.ttf") format("truetype");
+  font-display: swap;
+}
 :root {
-  --bg: #f6f7f9;
-  --fg: #1b2330;
-  --muted: #5a6577;
-  --line: #d9dee6;
-  --accent: #2a7a8c;
-  --frame: #ffffff;
-  --font-head: "Space Grotesk", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
+  --sun: #ffd84d;
+  --orange: #ff7a00;
+  --red: #f15a22;
+  --navy: #101a3c;
+  --cream: #fff3d6;
+  --pink: #ff8fb1;
+  --font-title: "Bangers", "Impact", "Arial Narrow", sans-serif;
+  --font-body: "Roboto", system-ui, sans-serif;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #12171f; --fg: #e6eaf0; --muted: #9aa5b6; --line: #2a3340; --accent: #62b5c6; --frame: #ffffff;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #12171f; --fg: #e6eaf0; --muted: #9aa5b6; --line: #2a3340; --accent: #62b5c6; --frame: #ffffff;
-  color-scheme: dark;
-}
+* { box-sizing: border-box; }
+html { background: var(--orange); }
 body {
-  background: var(--bg); color: var(--fg); font-family: var(--font-body);
-  font-size: 16px; line-height: 1.55;
-  padding-block: 32px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  margin: 0;
+  background: var(--orange) linear-gradient(180deg, var(--sun) 0%, var(--orange) 100%) no-repeat;
+  color: var(--navy);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.55;
+  position: relative;
+  overflow-x: hidden;
 }
-main { max-width: 960px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
-h1 { font-family: var(--font-head); font-size: clamp(1.7rem, 4vw, 2.3rem); margin: 0; text-wrap: balance; }
-h2 { font-family: var(--font-head); font-size: 1.15rem; margin: 0 0 10px; }
-.lead { color: var(--muted); margin: 6px 0 0; max-width: 65ch; }
-figure { margin: 0; background: var(--frame); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
-figure img { display: block; width: 100%; height: auto; border-radius: 4px; }
-ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; }
-li span { color: var(--muted); }
-.note { color: var(--muted); font-size: 0.92rem; max-width: 65ch; }
+.deco { position: absolute; pointer-events: none; }
+.shuriken { fill: var(--navy); }
+.nuvem { fill: none; stroke: #fff; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+
+.pagina {
+  position: relative;
+  z-index: 1;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 28px max(16px, env(safe-area-inset-right, 0px)) 56px max(16px, env(safe-area-inset-left, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
+}
+
+/* Título com contorno branco e sombra marinho */
+.titulo {
+  font-family: var(--font-title);
+  font-weight: 400;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  line-height: .95;
+  -webkit-text-stroke: 7px #fff;
+  paint-order: stroke fill;
+  text-shadow: 5px 5px 0 var(--navy);
+  margin: 0;
+  text-wrap: balance;
+}
+.titulo.grande { font-size: clamp(2.8rem, 10vw, 5.6rem); }
+.titulo.medio { font-size: clamp(1.9rem, 5vw, 2.9rem); text-align: center; margin-bottom: 24px; }
+
+/* Abertura */
+.abertura {
+  position: relative;
+  min-height: 400px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 24px 8px;
+}
+.abertura .fundo { position: absolute; inset: 0; width: 100%; height: 100%; }
+.abertura .texto { position: relative; max-width: 560px; display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.abertura p { margin: 0; font-weight: 700; max-width: 40ch; }
+
+/* Painéis de quadrinho */
+.painel {
+  background: var(--cream);
+  border: 5px solid var(--navy);
+  border-radius: 6px;
+  box-shadow: 9px 9px 0 var(--navy);
+  padding: 18px;
+}
+.painel img { display: block; width: 100%; height: auto; }
+
+.temas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 22px;
+}
+.tema { padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.tema:nth-child(even) { background: #fff; }
+.tema h3 { font-family: var(--font-title); font-weight: 400; font-size: 1.9rem; letter-spacing: .03em; color: var(--red); margin: 0; text-transform: uppercase; line-height: 1; }
+.tema p { margin: 0; font-size: .95rem; }
+.fichas { display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 0; list-style: none; }
+.fichas li { background: var(--navy); color: var(--cream); font-weight: 700; font-size: .85rem; padding: 2px 9px; border-radius: 3px; }
+
+/* Lista de textos em faixa marinho */
+.faixa {
+  background: var(--navy);
+  color: var(--cream);
+  border-radius: 6px;
+  padding: 24px 22px 26px;
+  box-shadow: 9px 9px 0 rgba(16, 26, 60, .35);
+}
+.faixa h2 { font-family: var(--font-title); font-weight: 400; font-size: 2rem; letter-spacing: .04em; text-transform: uppercase; color: var(--sun); margin: 0 0 14px; }
+.faixa ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 12px; }
+.faixa li { padding-left: 14px; border-left: 4px solid var(--red); min-width: 0; overflow-wrap: anywhere; }
+.faixa li span { color: #f2c9a0; display: block; font-size: .92rem; }
+
+.nota { font-size: .92rem; max-width: 68ch; margin: 0 auto; text-align: center; font-weight: 500; }
+:focus-visible { outline: 4px solid var(--navy); outline-offset: 3px; }
+
+@media (max-width: 700px) {
+  .deco.extra { display: none; }
+  .deco.primeiro { width: 90px !important; left: -26px !important; top: 14px !important; }
+}
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .titulo { -webkit-text-stroke-width: 5px; text-shadow: 3px 3px 0 var(--navy); }
+  .painel { padding: 10px; box-shadow: 6px 6px 0 var(--navy); border-width: 4px; }
+  .abertura { min-height: 320px; }
+}
 </style>
 </head>
 <body>
-<main>
-  <header>
-    <h1>Nuvem de Palavras</h1>
-    <p class="lead">Termos mais frequentes em seis textos: quatro artigos acadêmicos e duas matérias da Folha de S.Paulo.</p>
+
+<svg class="deco primeiro" style="left:-34px;top:36px;width:150px" viewBox="0 0 100 100" aria-hidden="true"><g class="shuriken"><use href="#shuriken"/></g></svg>
+<svg class="deco extra" style="right:-26px;top:110px;width:96px" viewBox="0 0 100 100" aria-hidden="true"><g class="shuriken"><use href="#shuriken"/></g></svg>
+<svg class="deco extra" style="right:-60px;bottom:40px;width:230px" viewBox="0 0 100 100" aria-hidden="true"><g class="shuriken"><use href="#shuriken"/></g></svg>
+<svg class="deco extra" style="left:-20px;bottom:120px;width:110px" viewBox="0 0 100 100" aria-hidden="true"><g class="shuriken"><use href="#shuriken"/></g></svg>
+<svg class="deco extra" style="left:4%;top:34%;width:170px" viewBox="0 0 140 80" aria-hidden="true"><use href="#nuvem" class="nuvem"/></svg>
+<svg class="deco extra" style="right:3%;top:52%;width:190px" viewBox="0 0 140 80" aria-hidden="true"><use href="#nuvem" class="nuvem"/></svg>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="shuriken">
+      <path id="lamina" d="M50 50 C50 26 62 8 90 4 C78 16 74 32 66 46 Z"/>
+      <use href="#lamina" transform="rotate(90 50 50)"/>
+      <use href="#lamina" transform="rotate(180 50 50)"/>
+      <use href="#lamina" transform="rotate(270 50 50)"/>
+      <circle cx="50" cy="50" r="6" fill="#ff8a00"/>
+    </g>
+    <path id="nuvem" d="M14 62 C4 50 14 38 28 42 C30 22 54 16 66 30 C76 14 104 18 106 40 C124 38 134 56 120 66 C118 72 24 72 14 62 Z"/>
+  </defs>
+</svg>
+
+<main class="pagina">
+
+  <header class="abertura">
+    <svg class="fundo" viewBox="-26 0 152 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <polygon points="50.0,2.0 60.0,17.6 78.5,5.7 78.4,22.6 102.6,16.1 92.5,31.7 118.7,31.6 100.2,43.6 124.4,50.0 100.2,56.4 118.7,68.4 92.5,68.3 102.6,83.9 78.4,77.4 78.5,94.3 60.0,82.4 50.0,98.0 40.0,82.4 21.5,94.3 21.6,77.4 -2.6,83.9 7.5,68.3 -18.7,68.4 -0.2,56.4 -24.4,50.0 -0.2,43.6 -18.7,31.6 7.5,31.7 -2.6,16.1 21.6,22.6 21.5,5.7 40.0,17.6" fill="#f08a1c" transform="translate(2.4 3)"/>
+      <polygon points="50.0,2.0 60.0,17.6 78.5,5.7 78.4,22.6 102.6,16.1 92.5,31.7 118.7,31.6 100.2,43.6 124.4,50.0 100.2,56.4 118.7,68.4 92.5,68.3 102.6,83.9 78.4,77.4 78.5,94.3 60.0,82.4 50.0,98.0 40.0,82.4 21.5,94.3 21.6,77.4 -2.6,83.9 7.5,68.3 -18.7,68.4 -0.2,56.4 -24.4,50.0 -0.2,43.6 -18.7,31.6 7.5,31.7 -2.6,16.1 21.6,22.6 21.5,5.7 40.0,17.6" fill="#ffe3a3" stroke="#fff3d6" stroke-width=".4"/>
+      <path d="M51.8,50.0 L52.0,50.1 L52.2,50.3 L52.3,50.4 L52.5,50.6 L52.6,50.8 L52.6,51.0 L52.6,51.3 L52.6,51.5 L52.5,51.8 L52.4,52.0 L52.3,52.3 L52.0,52.5 L51.8,52.8 L51.4,53.0 L51.1,53.2 L50.7,53.4 L50.2,53.6 L49.7,53.7 L49.2,53.8 L48.6,53.9 L48.1,53.9 L47.5,53.9 L46.8,53.9 L46.2,53.8 L45.6,53.6 L45.0,53.5 L44.4,53.2 L43.8,53.0 L43.2,52.7 L42.7,52.3 L42.2,51.9 L41.8,51.5 L41.4,51.0 L41.1,50.5 L40.9,49.9 L40.7,49.4 L40.6,48.8 L40.6,48.2 L40.7,47.6 L40.9,47.0 L41.1,46.4 L41.5,45.8 L41.9,45.2 L42.5,44.6 L43.1,44.1 L43.8,43.6 L44.6,43.1 L45.5,42.7 L46.4,42.3 L47.4,42.0 L48.5,41.7 L49.6,41.6 L50.7,41.4 L51.9,41.4 L53.1,41.4 L54.3,41.5 L55.6,41.6 L56.8,41.9 L58.0,42.2 L59.1,42.6 L60.2,43.1 L61.3,43.6 L62.3,44.3 L63.2,44.9 L64.0,45.7 L64.7,46.5 L65.3,47.4 L65.8,48.3 L66.2,49.2 L66.4,50.2 L66.6,51.2 L66.5,52.2 L66.4,53.2 L66.1,54.2 L65.6,55.2 L65.0,56.2 L64.3,57.2 L63.4,58.1 L62.4,59.0 L61.3,59.8 L60.0,60.6 L58.7,61.2 L57.2,61.8 L55.6,62.4 L54.0,62.8 L52.3,63.1 L50.5,63.3 L48.7,63.4 L46.8,63.5 L45.0,63.3 L43.1,63.1 L41.3,62.8 L39.5,62.3 L37.8,61.8 L36.1,61.1 L34.5,60.3 L33.0,59.4 L31.7,58.5 L30.4,57.4 L29.3,56.2 L28.3,55.0 L27.5,53.7 L26.9,52.4 L26.5,51.0 L26.2,49.6 L26.2,48.2 L26.3,46.7 L26.7,45.3 L27.2,43.8 L27.9,42.4 L28.9,41.1 L30.0,39.7 L31.3,38.5 L32.8,37.3 L34.4,36.2 L36.2,35.2 L38.2,34.3 L40.3,33.6 L42.5,32.9 L44.8,32.4 L47.1,32.0 L49.6,31.8 L52.0,31.7 L54.5,31.8 L57.0,32.0 L59.5,32.3 L61.9,32.8 L64.3,33.5 L66.6,34.3 L68.8,35.3 L70.8,36.4 L72.8,37.6 L74.5,38.9 L76.1,40.4 L77.5,41.9 L78.7,43.5 L79.6,45.2 L80.3,47.0 L80.8,48.8 L81.1,50.7 L81.1,52.6 L80.8,54.5 L80.3,56.3 L79.5,58.2 L78.5,60.0 L77.2,61.7 L75.6,63.4 L73.9,64.9 L71.9,66.4 L69.7,67.8 L67.4,69.0 L64.8,70.1 L62.1,71.0 L59.3,71.8 L56.4,72.4 L53.3,72.9 L50.2,73.1 L47.1,73.2 L44.0,73.0 L40.8,72.7 L37.7,72.2 L34.7,71.5 L31.8,70.6 L28.9,69.6 L26.2,68.3 L23.7,66.9 L21.4,65.4 L19.3,63.7 L17.3,61.8 L15.7,59.9 L14.3,57.8 L13.2,55.7 L12.4,53.5 L11.8,51.2 L11.6,48.9 L11.7,46.6 L12.1,44.3 L12.8,42.0 L13.9,39.8 L15.2,37.6 L16.9,35.5 L18.8,33.4 L21.0,31.5 L23.5,29.8 L26.2,28.2 L29.1,26.7 L32.2,25.4 L35.6,24.3 L39.0,23.4 L42.6,22.7 L46.3,22.3 L50.1,22.0 L53.8,22.0 L57.6,22.2 L61.4,22.6 L65.1,23.3 L68.8,24.2 L72.3,25.3 L75.6,26.6 L78.8,28.1 L81.8,29.9 L84.6,31.8 L87.0,33.8 L89.3,36.1 L91.2,38.4 L92.8,40.9 L94.0,43.4 L94.9,46.1 L95.5,48.8 L95.7,51.5 L95.5,54.3 L94.9,57.0 L94.0,59.7 L92.7,62.4 L91.1,65.0 L89.0,67.4 L86.7,69.8 L84.0,72.0 L81.1,74.1 L77.8,75.9 L74.3,77.6 L70.6,79.1 L66.6,80.3 L62.5,81.4 L58.3,82.1 L53.9,82.6 L49.5,82.9 L45.1,82.8 L40.6,82.6 L36.2,82.0 L31.9,81.2 L27.7,80.1 L23.6,78.7 L19.7,77.2 L16.0,75.3 L12.6,73.3 L9.4,71.0 L6.6,68.6 L4.1,66.0 L1.9,63.2 L0.1,60.3 L-1.3,57.3 L-2.3,54.2 L-2.8,51.1 L-3.0,47.9 L-2.7,44.7 L-2.0,41.6 L-0.8,38.4 L0.8,35.4 L2.7,32.4 L5.1,29.6 L7.9,26.9 L11.0,24.4 L14.5,22.0 L18.3,19.9 L22.4,18.0 L26.7,16.4 L31.3,15.0 L36.0,13.8" fill="none" stroke="#ff8fb1" stroke-width="2.2" stroke-linecap="round" opacity=".8"/>
+    </svg>
+    <div class="texto">
+      <h1 class="titulo grande">Nuvem de palavras</h1>
+      <p>Os termos que mais se repetem em quatro artigos acadêmicos e duas matérias da Folha de S.Paulo.</p>
+    </div>
   </header>
-  <figure>
-    <img src="nuvem_palavras.png" alt="Nuvem de palavras com os termos mais frequentes dos seis textos. Em maior destaque: care, llms, social, human, amor, work, workers, domestic, violência e política.">
-  </figure>
-  <section>
-    <h2>Textos analisados</h2>
+
+  <section aria-labelledby="t-nuvem">
+    <h2 id="t-nuvem" class="titulo medio">Todos os textos juntos</h2>
+    <div class="painel">
+      <img src="nuvem_palavras.png" alt="Nuvem de palavras com os termos mais frequentes dos seis textos. Em maior destaque: care, social, work, amor, llms, human, workers, domestic, violência e política.">
+    </div>
+  </section>
+
+  <section aria-labelledby="t-temas">
+    <h2 id="t-temas" class="titulo medio">Quatro temas</h2>
+    <div class="temas">
+      <article class="painel tema">
+        <h3>Cuidado</h3>
+        <p>Gottfried (2025), sobre trabalho de cuidado e resistência.</p>
+        <ul class="fichas"><li>care</li><li>work</li><li>workers</li><li>domestic</li><li>labor</li><li>inequalities</li></ul>
+      </article>
+      <article class="painel tema">
+        <h3>Amor e gênero</h3>
+        <p>Fernandes e Moschkovich (2025), sobre amor romântico e branquitude.</p>
+        <ul class="fichas"><li>amor</li><li>gênero</li><li>mulheres</li><li>casamento</li><li>ocidental</li><li>matriz</li></ul>
+      </article>
+      <article class="painel tema">
+        <h3>LLMs</h3>
+        <p>Ziems et al. (2024) e Wang et al. (2025), sobre modelos de linguagem nas ciências sociais.</p>
+        <ul class="fichas"><li>llms</li><li>human</li><li>models</li><li>identity</li><li>responses</li><li>social</li></ul>
+      </article>
+      <article class="painel tema">
+        <h3>Política</h3>
+        <p>Dois textos da Folha: Angela Alonso e Mário Medeiros.</p>
+        <ul class="fichas"><li>violência</li><li>política</li><li>eleição</li><li>lula</li><li>literatura</li><li>negra</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="faixa" aria-labelledby="t-textos">
+    <h2 id="t-textos">Textos analisados</h2>
     <ul>
-      <li>Gottfried (2025). Conceptualizing care inequalities and modalities of resistance. <span>Tempo Social, v. 37, n. 3.</span></li>
-      <li>Fernandes e Moschkovich (2025). Amor, gênero, branquitude e poder nas sociedades de matriz simbólica ocidental. <span>Tempo Social, v. 37, n. 2.</span></li>
-      <li>Ziems et al. (2024). Can Large Language Models Transform Computational Social Science? <span>Computational Linguistics (versão do arXiv).</span></li>
-      <li>Wang, Morgenstern e Dickerson (2025). Large language models that replace human participants can harmfully misportray and flatten identity groups. <span>Nature Machine Intelligence (versão do arXiv).</span></li>
-      <li>Angela Alonso. Violência política muda de forma nas últimas eleições presidenciais. <span>Folha de S.Paulo, novembro de 2026.</span></li>
-      <li>Mário Medeiros. Valorização da diversidade no mercado editorial pode ser efêmera. <span>Folha de S.Paulo (Ilustríssima), novembro de 2026.</span></li>
+      <li>Gottfried (2025). Conceptualizing care inequalities and modalities of resistance.<span>Tempo Social, v. 37, n. 3.</span></li>
+      <li>Fernandes e Moschkovich (2025). Amor, gênero, branquitude e poder nas sociedades de matriz simbólica ocidental.<span>Tempo Social, v. 37, n. 2.</span></li>
+      <li>Ziems et al. (2024). Can Large Language Models Transform Computational Social Science?<span>Computational Linguistics (versão do arXiv).</span></li>
+      <li>Wang, Morgenstern e Dickerson (2025). Large language models that replace human participants can harmfully misportray and flatten identity groups.<span>Nature Machine Intelligence (versão do arXiv).</span></li>
+      <li>Angela Alonso. Violência política muda de forma nas últimas eleições presidenciais.<span>Folha de S.Paulo, novembro de 2026.</span></li>
+      <li>Mário Medeiros. Valorização da diversidade no mercado editorial pode ser efêmera.<span>Folha de S.Paulo (Ilustríssima), novembro de 2026.</span></li>
     </ul>
   </section>
-  <p class="note">Como foi feita: palavras comuns em português e inglês, seções de referências e texto de interface das páginas da Folha foram removidos. Cada texto tem o mesmo peso (frequência relativa), para que os artigos longos não dominem. Sobrenomes dos autores dos artigos sobre LLMs foram ignorados. Formas diferentes da mesma palavra, como "cuidado" e "cuidados", contam separadamente. Os textos estão em português e inglês, então os dois idiomas aparecem juntos.</p>
+
+  <p class="nota">Como foi feita: palavras comuns em português e inglês, seções de referências e texto de interface das páginas da Folha foram removidos. Cada texto tem o mesmo peso (frequência relativa), para que os artigos longos não dominem. Sobrenomes dos autores dos artigos sobre LLMs foram ignorados. Formas diferentes da mesma palavra, como "cuidado" e "cuidados", contam separadamente, e os textos em português e inglês aparecem juntos.</p>
+
 </main>
 </body>
 </html>
